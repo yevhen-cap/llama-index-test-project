@@ -1,0 +1,8 @@
+.env
+.venv/
+.vscode/
+db/
+llamaIndex_chat.egg-info/
+data/
+Resume/
+*.zip
