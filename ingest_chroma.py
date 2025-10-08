@@ -1,5 +1,5 @@
 import pathlib as pl
-from os import getenv
+from os import getenv, environ
 
 import chromadb
 from llama_index.core import (Settings, SimpleDirectoryReader, StorageContext,
@@ -13,11 +13,12 @@ from llama_index.llms.azure_openai import AzureOpenAI
 
 INDEX_NAME = getenv("INDEX_NAME")
 
+environ["OPENAI_API_VERSION"] = "2024-02-01"
+
 chroma_client = chromadb.PersistentClient(f"./db/{INDEX_NAME}")
 llm = AzureOpenAI(
     engine=getenv("EMBED_MODEL_NAME"),
     model=getenv("EMBED_MODEL_NAME"),
-    api_version="2024-02-01",
 )
 
 def create_chroma_index() -> None:
@@ -52,7 +53,7 @@ def ingest_documents() -> None:
     VectorStoreIndex.from_documents(
         documents=documents,
         storage_context=storage_context,
-        show_progress=True,
+        show_progress=True
     )
 
 

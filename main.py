@@ -1,4 +1,4 @@
-from os import getenv
+from os import getenv, environ
 from typing import Union
 
 import chromadb
@@ -12,11 +12,12 @@ from loguru import logger
 
 INDEX_NAME = getenv("INDEX_NAME", "test-index")
 
+environ["OPENAI_API_VERSION"] = "2024-12-01-preview"
+
 llm = AzureOpenAI(
     engine=getenv("MODEL_NAME"),
     model=getenv("MODEL_NAME"),
-    temperature=0.0,
-    api_version="2024-12-01-preview"
+    temperature=0.0
 )
 
 
