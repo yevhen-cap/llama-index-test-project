@@ -9,4 +9,5 @@ INDEX_NAME="test-index"
 
 2) Set `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY` with your endpoint url and key
 
-3) Run command `sh run.sh`
+3) Run command `sh run.sh` if you want to run streamlit
+4) Run command `sh run_react_agent.sh` if you want to run ReActAgent CLI app

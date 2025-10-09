@@ -1,5 +1,4 @@
 from os import getenv, environ
-from typing import Union
 
 import chromadb
 import streamlit as st
