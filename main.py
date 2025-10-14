@@ -1,14 +1,12 @@
 from os import getenv, environ
 
-import chromadb
 import streamlit as st
-from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.core import Settings
 from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.vector_stores.chroma import ChromaVectorStore
 from loguru import logger
-from chromadb import Collection
+
+from src.tools.chroma_tools import get_chroma_index_vector_store, get_names_from_documents
 
 INDEX_NAME = getenv("INDEX_NAME", "test-index")
 
@@ -36,32 +34,6 @@ def get_full_prompt(name: str) -> str:
               "{professional highlights}")
     
     return prompt
-
-@st.cache_resource
-def get_chroma_collection() -> Collection:
-    chroma_client = chromadb.PersistentClient(f"./db/{INDEX_NAME}")
-    chroma_collection = chroma_client.get_or_create_collection("new-collection")
-
-    return chroma_collection
-
-@st.cache_resource
-def get_chroma_index_vector_store() -> VectorStoreIndex:
-    chroma_vector_store = ChromaVectorStore(chroma_collection=get_chroma_collection())
-
-    vector_store: VectorStoreIndex = VectorStoreIndex.from_vector_store(
-        vector_store=chroma_vector_store,
-        embed_model=AzureOpenAIEmbedding(model=getenv("EMBED_MODEL_NAME")),      
-    )
-
-    return vector_store
-
-@st.cache_resource
-def get_names_from_documents():
-    result = get_chroma_collection().get(include=["metadatas"])
-
-    names = set([mt["name"] for mt in result["metadatas"]])
-    return names
-
 
 
 def start_chat():

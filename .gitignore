@@ -6,3 +6,4 @@ llamaIndex_chat.egg-info/
 data/
 Resume/
 *.zip
+*.pyc
