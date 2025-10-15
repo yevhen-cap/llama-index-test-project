@@ -1,19 +1,17 @@
 import asyncio
-from os import environ, getenv
+from os import getenv
 
-import chromadb
-from llama_index.core import VectorStoreIndex
+from llama_index.core import Settings
+from src.chroma_retriever import ChromaRetriever
 from llama_index.core.agent.workflow import AgentStream, ReActAgent
 from llama_index.core.tools import FunctionTool
 from llama_index.core.workflow import Context
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from loguru import logger
+from llama_index.core.query_engine import RetrieverQueryEngine
 
-INDEX_NAME = getenv("INDEX_NAME", "test-index")
+from src.tools.chroma_tools import get_chroma_vector_store
 
-environ["OPENAI_API_VERSION"] = "2024-12-01-preview"
 
 llm = AzureOpenAI(
     engine=getenv("MODEL_NAME"),
@@ -21,26 +19,22 @@ llm = AzureOpenAI(
     temperature=0.0
 )
 
-def get_chroma_index_vector_store() -> VectorStoreIndex:
-    chroma_client = chromadb.PersistentClient(f"./db/{INDEX_NAME}")
-    chroma_collection = chroma_client.get_or_create_collection("new-collection")
-    chroma_vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+Settings.llm = llm
 
-    vector_store: VectorStoreIndex = VectorStoreIndex.from_vector_store(
-        vector_store=chroma_vector_store,
-        embed_model=AzureOpenAIEmbedding(model=getenv("EMBED_MODEL_NAME"))
-    )
+retriever = ChromaRetriever(
+    vector_store=get_chroma_vector_store(),
+    embed_model=AzureOpenAIEmbedding(model=getenv("EMBED_MODEL_NAME")),
+    query_mode="default",
+    similarity_top_k=2
+)
 
-    return vector_store
+query_engine = RetrieverQueryEngine.from_args(retriever)
 
 
 def query_retrieval_tool(query: str):
-    '''retrieve info from chromadb'''
-    index = get_chroma_index_vector_store()
-    retriever = index.as_retriever()
-    nodes = retriever.retrieve(query)
+    '''retrieve info from chromadb with retriever'''
 
-    return "\n\n".join([n.get_content() for n in nodes]) 
+    return query_engine.query(query)
 
 
 def query_general_tool(prompt: str):
@@ -48,25 +42,14 @@ def query_general_tool(prompt: str):
     response = llm.complete(prompt)
     return response.text
 
-
-# Wrap retrieval tool
-def retrieval_tool_fn(query: str) -> str:
-    """fhsdkjjfdls"""
-    return query_retrieval_tool(query)
-
 retrieval_tool = FunctionTool.from_defaults(
-    fn=retrieval_tool_fn,
+    fn=query_retrieval_tool,
     name="retrieval_tool",
     description="Use this tool to retrieve information from the ChromaDB using semantic search.",
 )
 
-# Wrap general tool
-def general_tool_fn(prompt: str) -> str:
-    """general tool"""
-    return query_general_tool(prompt)
-
 general_tool = FunctionTool.from_defaults(
-    fn=general_tool_fn,
+    fn=query_general_tool,
     name="general_tool",
     description="Use this tool to answer general questions using Azure OpenAI.",
 )   
@@ -86,10 +69,11 @@ def react_agent(user_input: str) -> str:
     return agent.chat(user_input)
 
 
-async def main() -> None:
-    logger.info("Running ChromaDB")
-    
-    prompt = input("Ask your question: ")
+async def main() -> None:    
+    prompt = input("Ask your question(type exit for exit): ")
+    if prompt.strip().lower() == "exit":
+        print("Bye!")
+        exit(0)
 
     handler = agent.run(prompt)
     async for ev in handler.stream_events():
@@ -97,12 +81,8 @@ async def main() -> None:
         #     print(f"\nCall {ev.tool_name} with {ev.tool_kwargs}\nReturned: {ev.tool_output}")
         if isinstance(ev, AgentStream):
             print(f"{ev.delta}", end="", flush=True)
-    response = await handler
+    await handler
 
 if __name__ == "__main__":
     while True:
-        try:
-            asyncio.run(main())
-        except KeyboardInterrupt:
-            print("\nBye!")
-            exit(0)
+        asyncio.run(main())

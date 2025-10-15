@@ -5,7 +5,6 @@ import streamlit as st
 from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from loguru import logger
 from chromadb import Collection
 
 
@@ -19,15 +18,22 @@ def get_chroma_collection() -> Collection:
 
 
 @st.cache_resource
-def get_chroma_index_vector_store() -> VectorStoreIndex:
+def get_chroma_vector_store() -> VectorStoreIndex:
     chroma_vector_store = ChromaVectorStore(chroma_collection=get_chroma_collection())
 
-    vector_store: VectorStoreIndex = VectorStoreIndex.from_vector_store(
+    return chroma_vector_store
+
+
+@st.cache_resource
+def get_chroma_index_vector_store() -> VectorStoreIndex:
+    chroma_vector_store = get_chroma_vector_store()
+
+    chroma_index_vector_store: VectorStoreIndex = VectorStoreIndex.from_vector_store(
         vector_store=chroma_vector_store,
         embed_model=AzureOpenAIEmbedding(model=getenv("EMBED_MODEL_NAME")),      
     )
 
-    return vector_store
+    return chroma_index_vector_store
 
 
 @st.cache_resource
