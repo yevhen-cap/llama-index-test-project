@@ -1,5 +1,6 @@
 import asyncio
 from os import getenv
+import nest_asyncio
 
 from llama_index.core import Settings
 from src.chroma_retriever import ChromaRetriever
@@ -12,6 +13,7 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 
 from src.tools.chroma_tools import get_chroma_vector_store
 
+nest_asyncio.apply()
 
 llm = AzureOpenAI(
     engine=getenv("MODEL_NAME"),
@@ -75,7 +77,7 @@ async def main() -> None:
         print("Bye!")
         exit(0)
 
-    handler = agent.run(prompt)
+    handler = agent.run(prompt, ctx=ctx)
     async for ev in handler.stream_events():
         # if isinstance(ev, ToolCallResult):
         #     print(f"\nCall {ev.tool_name} with {ev.tool_kwargs}\nReturned: {ev.tool_output}")
