@@ -1,16 +1,16 @@
 import asyncio
 from os import getenv
-import nest_asyncio
 
+import nest_asyncio
 from llama_index.core import Settings
-from src.chroma_retriever import ChromaRetriever
 from llama_index.core.agent.workflow import AgentStream, ReActAgent
+from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.tools import FunctionTool
 from llama_index.core.workflow import Context
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.core.query_engine import RetrieverQueryEngine
 
+from src.chroma_retriever import ChromaRetriever
 from src.tools.chroma_tools import get_chroma_vector_store
 
 nest_asyncio.apply()

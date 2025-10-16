@@ -2,10 +2,10 @@ from os import getenv
 
 import chromadb
 import streamlit as st
+from chromadb import Collection
 from llama_index.core import VectorStoreIndex
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from chromadb import Collection
 
 
 @st.cache_resource

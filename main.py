@@ -1,12 +1,15 @@
-from os import getenv, environ
+from os import environ, getenv
 
 import streamlit as st
-from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.core import Settings
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.llms.azure_openai import AzureOpenAI
 from loguru import logger
 
-from src.tools.chroma_tools import get_chroma_index_vector_store, get_names_from_documents
+from src.tools.chroma_tools import (
+    get_chroma_index_vector_store,
+    get_names_from_documents,
+)
 
 INDEX_NAME = getenv("INDEX_NAME", "test-index")
 

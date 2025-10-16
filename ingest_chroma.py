@@ -1,16 +1,20 @@
 import pathlib as pl
-from os import getenv, environ
+from os import environ, getenv
 
 import chromadb
 from faker import Faker
-from llama_index.core import (Settings, SimpleDirectoryReader, StorageContext,
-                              VectorStoreIndex, Document)
+from llama_index.core import (
+    Document,
+    Settings,
+    SimpleDirectoryReader,
+    StorageContext,
+    VectorStoreIndex,
+)
 from llama_index.core.node_parser import SentenceSplitter, SimpleNodeParser
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from loguru import logger
-from llama_index.llms.azure_openai import AzureOpenAI
-
 
 INDEX_NAME = getenv("INDEX_NAME")
 

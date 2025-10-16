@@ -1,10 +1,10 @@
+from typing import Any, List, Optional
+
 from llama_index.core import QueryBundle
 from llama_index.core.retrievers import BaseRetriever
-from typing import Any, List
-from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core.schema import NodeWithScore
 from llama_index.core.vector_stores import VectorStoreQuery
-from typing import Optional
+from llama_index.vector_stores.chroma import ChromaVectorStore
 
 
 class ChromaRetriever(BaseRetriever):
